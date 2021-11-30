@@ -40,6 +40,24 @@ class Calculator(QWidget):
         self.btn_reciprocal.clicked.connect(lambda: self.math_signs('rec'))
         self.btn_squareNumber.clicked.connect(self.math_signs)
         self.btn_squareRoot.clicked.connect(lambda: self.math_signs('root'))
+        self.btn_clearsymbol.clicked.connect(self.backSpace)
+        self.btn_C.clicked.connect(self.clearAll)
+        self.btn_CE.clicked.connect(self.clearOne)
+
+    def backSpace(self):
+        value = self.lblInput.text()
+        if len(value) > 1:
+            self.lblInput.setText(value[:-1])
+        else:
+            self.lblInput.setText('0')
+        print(value)
+
+    def clearAll(self):
+        self.lblInput.setText('0')
+        self.lblHolder.setText('')
+
+    def clearOne(self):
+        self.lblInput.setText('0')
 
     def calculate(self, sign):
         value = self.lblInput.text()
@@ -51,7 +69,12 @@ class Calculator(QWidget):
             self.lblInput.setText('0')
         else:
             holder += value
-            self.lblInput.setText(str(eval(holder)))
+            if '%' in holder:
+                stat = holder.split('%')
+                result = (float(stat[0]) / 100) * float(stat[1])
+                self.lblInput.setText(outputer(result))
+            else:
+                self.lblInput.setText(outputer(eval(holder)))
             self.lblHolder.setText('')
             self.initial_value = '0'
 
@@ -59,16 +82,14 @@ class Calculator(QWidget):
         try:
             value = float(self.lblInput.text())
             if sign == 'rec':
-                msg = 1/value
+                msg = 1 / value
             elif sign == 'root':
                 msg = eval(f"{value} ** 0.5")
             else:
                 msg = eval(f"{value} ** 2")
-            self.lblInput.setText(str(msg))
-
+            self.lblInput.setText(outputer(msg))
         except Exception as err:
             print("sign error:", err)
-
 
     def addNum(self, number):
         value = self.lblInput.text()
@@ -86,8 +107,11 @@ class Calculator(QWidget):
                 except Exception as err:
                     print("Error Msg: ", err)
 
-    def addone(self):
-        self.lblInput.setText('1')
+def outputer(number):
+    num = float(number)
+    if num.is_integer():
+        num = int(number)
+    return str(num)
 
 
 app = QApplication(sys.argv)
